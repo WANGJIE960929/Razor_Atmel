@@ -42,7 +42,7 @@ the 1ms period.
 void main(void)
 {
   G_u32SystemFlags |= _SYSTEM_INITIALIZING;
-
+u32 wang=1;
   /* Low level initialization */
   WatchDogSetup(); /* During development, does not reset processor if timeout */
   GpioSetup();
@@ -84,7 +84,7 @@ void main(void)
   while(1)
   {
     WATCHDOG_BONE();
-    
+    wang++;
     /* Drivers */
     LedUpdate();
     ButtonRunActiveState();
