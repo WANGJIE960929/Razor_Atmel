@@ -38,11 +38,18 @@ contraints but must complete execution regardless of success or failure of start
 1ms of execution time counting all application execution.  SystemSleep() will execute to complete the remaining time in
 the 1ms period.
 ***********************************************************************************************************************/
-
+ u16 u16NumBIT1=0x9876;  
+ u16 u16NumBIT2=0x0001;
 void main(void)
 {
   G_u32SystemFlags |= _SYSTEM_INITIALIZING;
-u32 wang=1;
+        
+         u16NumBIT2=u16NumBIT2<<3;
+         u16NumBIT1=u16NumBIT1|u16NumBIT2;//ÖÃÒ»
+         u16NumBIT2=u16NumBIT2^0xffff;
+         u16NumBIT1=u16NumBIT1&u16NumBIT2;//ÇåÁã
+
+  
   /* Low level initialization */
   WatchDogSetup(); /* During development, does not reset processor if timeout */
   GpioSetup();
@@ -84,7 +91,9 @@ u32 wang=1;
   while(1)
   {
     WATCHDOG_BONE();
-    wang++;
+    
+    
+ 
     /* Drivers */
     LedUpdate();
     ButtonRunActiveState();
