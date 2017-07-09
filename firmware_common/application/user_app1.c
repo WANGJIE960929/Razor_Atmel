@@ -134,10 +134,135 @@ State Machine Function Definitions
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
-static void UserApp1SM_Idle(void)
-{
+ 
 
-} /* end UserApp1SM_Idle() */
+static void UserApp1SM_Idle(void)
+/*{
+  static u32 u32Counter1=0;
+  static u32 u32Counter2=0;
+  static bool blighton=FALSE;
+  static u32 au32time[60];
+  static u32* pu8Period=&au32time[0];
+  static u32 i;
+   for(i=0;i<30;i++)
+  {
+    au32time[i]=i+1;
+    au32time[59-i]=i+1;
+  }
+   u32Counter2++;
+   u32Counter1++;
+if(u32Counter2==2000)
+  {
+     pu8Period++;
+     u32Counter2=0;  
+     u32Counter1=0;
+  }
+if(pu8Period==&au32time[49]) 
+  {
+       pu8Period=&au32time[0];
+  }
+if(u32Counter1==(488/ *pu8Period))
+  { u32Counter1=0;
+    if(blighton)
+     HEARTBEAT_OFF();
+    else
+     HEARTBEAT_ON();
+  blighton=!blighton;
+  }
+
+
+}The first one
+
+  static u32 u32Counter1=0;
+  static bool bLightOn=FALSE;
+  static u32 u32Counter2=0;
+  static u32 u32Time1=1;
+  static u32 u32Time2=1;
+  u32Counter2++;
+  u32Counter1++;
+ if(u32Time2==1)
+ { 
+  if(u32Counter2==2000)
+   {
+    u32Time1=u32Time1<<1;
+    u32Counter2=0;
+    u32Counter1=0;
+   }
+  if(u32Counter1==(488/u32Time1))
+   {
+    u32Counter1=0;
+    if(bLightOn)
+      HEARTBEAT_ON();
+    else
+      HEARTBEAT_OFF();
+    bLightOn=!bLightOn;
+   }
+  if(u32Time1==32)
+    u32Time2=2;
+ }
+ if(u32Time2==2)
+ {
+   if(u32Counter2==2000)
+   {
+     u32Time1=u32Time1>>1;
+     u32Counter2=0;
+     u32Counter1=0;
+   }
+  if(u32Counter1==(488/u32Time1))
+   {
+    u32Counter1=0;
+    if(bLightOn)
+      HEARTBEAT_ON();
+    else
+      HEARTBEAT_OFF();
+    bLightOn=!bLightOn;
+   }
+   if(u32Time1==1)
+     u32Time2=1;
+ } 
+the second one
+Reduce the blinking rate back down to 1.024Hz and repeat forever*/
+
+/*Bouns*/
+{ static u32 u32Counter1=0;
+  static u32 u32Counter2=0;
+  static u32 u32Counter3=0;
+  static bool blighton=FALSE;
+  static u32 au32time[20]={10,20,30,40,50,60,70,80,90,100,100,90,80,70,60,50,40,30,20,10};
+  static u32* pu8Period=&au32time[0];
+   u32Counter1++;
+   u32Counter2++;
+   u32Counter3++;
+if(u32Counter2==100)
+  {
+     pu8Period++;
+     u32Counter2=0;  
+     u32Counter1=0;
+     u32Counter3=0;
+  }
+if(pu8Period==&au32time[19]) 
+  {
+     pu8Period=&au32time[0];
+  }
+if(u32Counter3<=*pu8Period)
+  {
+  if(u32Counter1==5)
+   { u32Counter1=0;
+    if(blighton)
+     HEARTBEAT_OFF();
+    else
+     HEARTBEAT_ON();
+    blighton=!blighton;
+    u32Counter1=0;
+   }
+    
+  }
+
+}
+  
+
+
+ /* end UserApp1SM_Idle() */
     
 
 /*-------------------------------------------------------------------------------------------------------------------*/
