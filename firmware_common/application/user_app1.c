@@ -86,8 +86,14 @@ Promises:
   - 
 */
 void UserApp1Initialize(void)
-{
- 
+{     
+      LedOff(BLUE);
+      LedOff(PURPLE);
+      LedOff(WHITE);
+      LedOff(RED);
+      LedOff(GREEN);
+      LedBlink(ORANGE,LED_8HZ);
+
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -133,141 +139,184 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+
  
 
+/* Wait for a message to be queued */
 static void UserApp1SM_Idle(void)
-/*{
-  static u32 u32Counter1=0;
-  static u32 u32Counter2=0;
-  static bool blighton=FALSE;
-  static u32 au32time[60];
-  static u32* pu8Period=&au32time[0];
-  static u32 i;
-   for(i=0;i<30;i++)
-  {
-    au32time[i]=i+1;
-    au32time[59-i]=i+1;
-  }
-   u32Counter2++;
-   u32Counter1++;
-if(u32Counter2==2000)
-  {
-     pu8Period++;
-     u32Counter2=0;  
-     u32Counter1=0;
-  }
-if(pu8Period==&au32time[49]) 
-  {
-       pu8Period=&au32time[0];
-  }
-if(u32Counter1==(488/ *pu8Period))
-  { u32Counter1=0;
-    if(blighton)
-     HEARTBEAT_OFF();
-    else
-     HEARTBEAT_ON();
-  blighton=!blighton;
-  }
-
-
-}The first one
-
-  static u32 u32Counter1=0;
-  static bool bLightOn=FALSE;
-  static u32 u32Counter2=0;
-  static u32 u32Time1=1;
-  static u32 u32Time2=1;
-  u32Counter2++;
-  u32Counter1++;
- if(u32Time2==1)
- { 
-  if(u32Counter2==2000)
-   {
-    u32Time1=u32Time1<<1;
-    u32Counter2=0;
-    u32Counter1=0;
-   }
-  if(u32Counter1==(488/u32Time1))
-   {
-    u32Counter1=0;
-    if(bLightOn)
-      HEARTBEAT_ON();
-    else
-      HEARTBEAT_OFF();
-    bLightOn=!bLightOn;
-   }
-  if(u32Time1==32)
-    u32Time2=2;
- }
- if(u32Time2==2)
- {
-   if(u32Counter2==2000)
-   {
-     u32Time1=u32Time1>>1;
-     u32Counter2=0;
-     u32Counter1=0;
-   }
-  if(u32Counter1==(488/u32Time1))
-   {
-    u32Counter1=0;
-    if(bLightOn)
-      HEARTBEAT_ON();
-    else
-      HEARTBEAT_OFF();
-    bLightOn=!bLightOn;
-   }
-   if(u32Time1==1)
-     u32Time2=1;
- } 
-the second one
-Reduce the blinking rate back down to 1.024Hz and repeat forever*/
-
-/*Bouns*/
-{ static u32 u32Counter1=0;
-  static u32 u32Counter2=0;
-  static u32 u32Counter3=0;
-  static bool blighton=FALSE;
-  static u32 au32time[20]={10,20,30,40,50,60,70,80,90,100,100,90,80,70,60,50,40,30,20,10};
-  static u32* pu8Period=&au32time[0];
-   u32Counter1++;
-   u32Counter2++;
-   u32Counter3++;
-if(u32Counter2==100)
-  {
-     pu8Period++;
-     u32Counter2=0;  
-     u32Counter1=0;
-     u32Counter3=0;
-  }
-if(pu8Period==&au32time[19]) 
-  {
-     pu8Period=&au32time[0];
-  }
-if(u32Counter3<=*pu8Period)
-  {
-  if(u32Counter1==5)
-   { u32Counter1=0;
-    if(blighton)
-     HEARTBEAT_OFF();
-    else
-     HEARTBEAT_ON();
-    blighton=!blighton;
-    u32Counter1=0;
-   }
-    
-  }
-
-}
+{
+/*   if(IsButtonPressed(BUTTON0))
+      {
+        LedOn(PURPLE);
+        LedOn(BLUE);
+      }
+     if(IsButtonPressed(BUTTON1))
+      {
+        LedOff(PURPLE);
+        LedOff(BLUE);
+      }                                    //problem3
+ */
   
 
+   
+{       
+        static u8 u8Correct=1;
+        static u8 au8Passwordarray[6]={1,2,3,1,2,3};
+        static u8 au8Enterarray[6]={0,0,0,0,0,0};
+        static u8 i=0;
+        
+        if(i<6) 
+          
+        if(WasButtonPressed(BUTTON1))//Enter 6 passwords
+            
+          {
+            LedBlink(RED,LED_4HZ);//RED Led Blink
+            au8Enterarray[i]=1;
+            i++;
+            ButtonAcknowledge(BUTTON1);
+          }
+        
+        if(WasButtonPressed(BUTTON2))
+            
+          {
+            LedBlink(RED,LED_4HZ);
+            au8Enterarray[i]=2;
+            i++;
+            ButtonAcknowledge(BUTTON2);
+          }
+        
+        if(WasButtonPressed(BUTTON3))
+          
+          {
+            LedBlink(RED,LED_4HZ);
+            au8Enterarray[i]=3;
+            i++;
+            ButtonAcknowledge(BUTTON3);
+          }
+        
+      if(IsButtonPressed(BUTTON0))//confirm
+      {    
+           LedOff(RED);        
+        for(i=0;i<6;i++)//Correct or not
+        {
+          if(au8Enterarray[i]==au8Passwordarray[i])
+          { 
+            u8Correct=1;
+          }
+          else
+          {
+            u8Correct=0;
+            break;
+          }
+        }
+      
+     if(u8Correct==1)   
+     {
+       LedOn(WHITE);
+       LedOff(PURPLE);
+     }
+     else
+     {
+       LedOff(WHITE);
+       LedOn(PURPLE);
+     }
+    }
+}                                        //problem  6
 
- /* end UserApp1SM_Idle() */
-    
+
+  /*static u16 u16Counter1=0;   //time counter
+    static u16 u16Counter2=0;   //0-16
+    static LedRateType eLedDutyLevel=LED_PWM_0;
+	
+	u16Counter1++;
+	
+	if(u16Counter1==1000)    //1s
+	{
+		LedToggle(PURPLE);		
+		LedPWM(WHITE,eLedDutyLevel);
+                u16Counter2++;
+		if(u16Counter2<=8)     //up
+		{
+			LedOn(RED);
+			LedOff(GREEN);
+			eLedDutyLevel++;
+                       }
+		else//down
+		{
+			LedOn(GREEN);
+			LedOff(RED);
+                                 eLedDutyLevel--;
+                        
+			if(u16Counter2==16)
+			{
+                                     u16Counter2=0;
+			}
+                      }
+                     u16Counter1=0; 
+	}
+     
+*/                                  //Duty cycle   0~40,40~0
+           
+         
+}/* end UserAppSM_Idle() */
+
+/*static u32 u32Counter123=0;
+  static u8 u8LedNo = 0;
+  
+  u32Counter123 ++;
+  
+  if(u32Counter123==1000)   //1s=1000ms
+  {
+    u32Counter123 = 0;
+    u8LedNo++;
+ 
+      switch(u8LedNo)
+      {
+      case 1:
+        LedOn(WHITE);
+        LedOn(RED);
+        break;
+      case 2:
+        LedOn(PURPLE);
+        LedOn(ORANGE);
+        break;
+      case 3:
+        LedOn(BLUE);
+        LedOn(YELLOW);
+        break;
+      case 4:
+        LedOn(CYAN);
+        LedOn(GREEN);
+        break;
+      case 5:
+        LedOff(WHITE);
+        LedOff(RED);
+        break;
+      case 6:
+        LedOff(PURPLE);
+        LedOff(ORANGE);
+        break;
+      case 7:
+        LedOff(BLUE);
+        LedOff(YELLOW);
+        break;
+      case 8:
+        LedOff(CYAN);
+        LedOff(GREEN);
+        break;
+      case 10:
+        u8LedNo=0;
+        break;
+      default:
+        break;
+      }
+  }*/                       //Led  basic
+
+ 
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
-static void UserApp1SM_Error(void)          
+static void UserApp1SM_Error(void)         
 {
   
 } /* end UserApp1SM_Error() */
