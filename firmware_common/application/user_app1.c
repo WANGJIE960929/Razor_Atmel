@@ -92,8 +92,8 @@ void UserApp1Initialize(void)
       LedOff(WHITE);
       LedOff(RED);
       LedOff(GREEN);
-      LedBlink(ORANGE,LED_8HZ);
-
+      
+      
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -144,175 +144,145 @@ State Machine Function Definitions
 
 /* Wait for a message to be queued */
 static void UserApp1SM_Idle(void)
-{
-/*   if(IsButtonPressed(BUTTON0))
-      {
-        LedOn(PURPLE);
-        LedOn(BLUE);
-      }
-     if(IsButtonPressed(BUTTON1))
-      {
-        LedOff(PURPLE);
-        LedOff(BLUE);
-      }                                    //problem3
- */
-  
-
-   
-{       
-        static u8 u8Correct=1;
-        static u8 au8Passwordarray[6]={1,2,3,1,2,3};
-        static u8 au8Enterarray[6]={0,0,0,0,0,0};
-        static u8 i=0;
+{   
+        static u8 u8RealPassword[6]={1,2,3,1,2,3};
+	static u8 u8UserPassword[]={0,0,0,0,0,0};
+	static u8 u8Index=0;
+	static u8 u8Comfirm=0;
+	static u16 u16Counter=0;
+	static bool bPressed=FALSE;
+	static bool bIsOk=TRUE;
+	u8 u8TempIndex;
         
-        if(i<6) 
-          
-        if(WasButtonPressed(BUTTON1))//Enter 6 passwords
-            
-          {
-            LedBlink(RED,LED_4HZ);//RED Led Blink
-            au8Enterarray[i]=1;
-            i++;
-            ButtonAcknowledge(BUTTON1);
-          }
-        
-        if(WasButtonPressed(BUTTON2))
-            
-          {
-            LedBlink(RED,LED_4HZ);
-            au8Enterarray[i]=2;
-            i++;
-            ButtonAcknowledge(BUTTON2);
-          }
-        
-        if(WasButtonPressed(BUTTON3))
-          
-          {
-            LedBlink(RED,LED_4HZ);
-            au8Enterarray[i]=3;
-            i++;
-            ButtonAcknowledge(BUTTON3);
-          }
-        
-      if(IsButtonPressed(BUTTON0))//confirm
-      {    
-           LedOff(RED);        
-        for(i=0;i<6;i++)//Correct or not
-        {
-          if(au8Enterarray[i]==au8Passwordarray[i])
-          { 
-            u8Correct=1;
-          }
-          else
-          {
-            u8Correct=0;
-            break;
-          }
-        }
-      
-     if(u8Correct==1)   
-     {
-       LedOn(WHITE);
-       LedOff(PURPLE);
-     }
-     else
-     {
-       LedOff(WHITE);
-       LedOn(PURPLE);
-     }
-    }
-}                                        //problem  6
-
-
-  /*static u16 u16Counter1=0;   //time counter
-    static u16 u16Counter2=0;   //0-16
-    static LedRateType eLedDutyLevel=LED_PWM_0;
-	
-	u16Counter1++;
-	
-	if(u16Counter1==1000)    //1s
+	if(WasButtonPressed(BUTTON3))
 	{
-		LedToggle(PURPLE);		
-		LedPWM(WHITE,eLedDutyLevel);
-                u16Counter2++;
-		if(u16Counter2<=8)     //up
-		{
-			LedOn(RED);
-			LedOff(GREEN);
-			eLedDutyLevel++;
-                       }
-		else//down
-		{
-			LedOn(GREEN);
-			LedOff(RED);
-                                 eLedDutyLevel--;
-                        
-			if(u16Counter2==16)
-			{
-                                     u16Counter2=0;
-			}
-                      }
-                     u16Counter1=0; 
+		ButtonAcknowledge(BUTTON3);		
+		u8Comfirm++;
+                bPressed=TRUE;
+                PWMAudioOn(BUZZER1);
+                PWMAudioSetFrequency(BUZZER1,700);
+                if(bPressed==TRUE)
+                {
+                    u16Counter++;
+                    
+                    if(u16Counter==200)
+                    {
+                      u16Counter=0;
+                      PWMAudioOff(BUZZER1);
+                      bPressed=FALSE;
+                    }
+                }				
+                LedOff(WHITE);
+                LedOff(PURPLE);               
 	}
-     
-*/                                  //Duty cycle   0~40,40~0
-           
-         
-}/* end UserAppSM_Idle() */
+	
+	if(u8Comfirm==2)
+	{
+		for(u8TempIndex=0;u8TempIndex<6;u8TempIndex++)
+		{
+			if(u8RealPassword[u8TempIndex]!=
+			   u8UserPassword[u8TempIndex])
+			{
+				bIsOk=FALSE;
+				break;
+			}
+		}
+		
+		if(bIsOk)
+		{
+			LedOn(WHITE);
+			LedOff(PURPLE);
+                        LedOff(BLUE);
+                        PWMAudioOn(BUZZER1);
+                        PWMAudioSetFrequency(BUZZER1,1000);                      
+		}
+		else
+		{
+			LedOff(WHITE);
+			LedOn(PURPLE);
+                        LedOff(BLUE);
+                        PWMAudioOn(BUZZER1);
+                        PWMAudioSetFrequency(BUZZER1,200);                       
+		}
+                u16Counter++;
+                if(u16Counter==500)
+                {
+                  PWMAudioOff(BUZZER1);                        
+                  u8Comfirm=0;
+                  u8Index=0; 
+                  u16Counter=0;
+                  bIsOk=TRUE;                
+                for(u8TempIndex=0;u8TempIndex<6;u8TempIndex++)
+                {
+                  u8UserPassword[u8TempIndex]=0;
+                }
+		u8TempIndex=0;
+                }
+	}
+	
+	if(u8Comfirm==1)
+	{         
+		LedOn(BLUE);
+		
+		if(u8Index<6)
+		{                  
+			if(WasButtonPressed(BUTTON0))
+			{
+				ButtonAcknowledge(BUTTON0);
+				LedOn(RED);
+                                PWMAudioOn(BUZZER1);
+                                PWMAudioSetFrequency(BUZZER1,500);
+				bPressed=TRUE;
+				u8UserPassword[u8Index]=1;
+				u8Index++;
+			}
+		
+			if(WasButtonPressed(BUTTON1))
+			{
+				ButtonAcknowledge(BUTTON1);
+				LedOn(RED);
+                                PWMAudioOn(BUZZER1);
+                                PWMAudioSetFrequency(BUZZER1,500);
+				bPressed=TRUE;
+				u8UserPassword[u8Index]=2;
+				u8Index++;
+			}
+		
+			if(WasButtonPressed(BUTTON2))
+			{
+				ButtonAcknowledge(BUTTON2);
+				LedOn(RED);
+                                PWMAudioOn(BUZZER1);
+                                PWMAudioSetFrequency(BUZZER1,500);
+				bPressed=TRUE;
+				u8UserPassword[u8Index]=3;
+				u8Index++;
+			}
+		}
+                
+			if(bPressed==TRUE)
+			{
+				u16Counter++;
+				
+				if(u16Counter==100)
+				{
+					u16Counter=0;
+					LedOff(RED);
+                                        PWMAudioOff(BUZZER1);
+					bPressed=FALSE;
+				}
+			}					
+	}
+        ButtonAcknowledge(BUTTON0);
+        ButtonAcknowledge(BUTTON1);
+        ButtonAcknowledge(BUTTON2);
+        ButtonAcknowledge(BUTTON3);
+}                                             //problem  6
 
-/*static u32 u32Counter123=0;
-  static u8 u8LedNo = 0;
-  
-  u32Counter123 ++;
-  
-  if(u32Counter123==1000)   //1s=1000ms
-  {
-    u32Counter123 = 0;
-    u8LedNo++;
- 
-      switch(u8LedNo)
-      {
-      case 1:
-        LedOn(WHITE);
-        LedOn(RED);
-        break;
-      case 2:
-        LedOn(PURPLE);
-        LedOn(ORANGE);
-        break;
-      case 3:
-        LedOn(BLUE);
-        LedOn(YELLOW);
-        break;
-      case 4:
-        LedOn(CYAN);
-        LedOn(GREEN);
-        break;
-      case 5:
-        LedOff(WHITE);
-        LedOff(RED);
-        break;
-      case 6:
-        LedOff(PURPLE);
-        LedOff(ORANGE);
-        break;
-      case 7:
-        LedOff(BLUE);
-        LedOff(YELLOW);
-        break;
-      case 8:
-        LedOff(CYAN);
-        LedOff(GREEN);
-        break;
-      case 10:
-        u8LedNo=0;
-        break;
-      default:
-        break;
-      }
-  }*/                       //Led  basic
 
- 
+  
+
+
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
