@@ -51,13 +51,16 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
+static u8 UserApp_CursorPosition1 = LINE1_END_ADDR;
+static u8 UserApp_CursorPosition2 = LINE2_END_ADDR;
 
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
-static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
+static fnCode_type UserApp1_StateMachine;
+/* The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
 
 
@@ -87,7 +90,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -135,7 +138,212 @@ State Machine Function Definitions
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
-{
+{ 
+    static u16 u16Counter=0;
+    static u16 u16Time=400;
+    static u8 u8index=0;
+    static u8 au8Message[]="WANG JIE!";
+    static u8* pu8Pointer1=&au8Message[0];
+    static u8* pu8Pointer2=&au8Message[0];
+    static u16 u16TimerCounter=0;
+    static u8 u8LedNo=0;//led number
+    static bool bOK=FALSE;
+    static bool bON=FALSE;
+    static u8 u8Comfirm=0;
+    
+    if(WasButtonPressed(BUTTON3))//choose just line1 or line1 and line2 to scroll up
+    {
+        if(u8Comfirm==2)
+        {
+            u8Comfirm=0;
+        }
+        ButtonAcknowledge(BUTTON3);
+        u8Comfirm++;
+        u16Counter=0;
+        u8index=0;
+        UserApp_CursorPosition1=LINE1_END_ADDR;
+        UserApp_CursorPosition2=LINE2_END_ADDR;
+        pu8Pointer1=&au8Message[0];
+        pu8Pointer2=&au8Message[0];
+    }
+    if(WasButtonPressed(BUTTON0))//make the speed of characters,LED and BUZZER1 up
+    {
+        ButtonAcknowledge(BUTTON0);
+        u16Counter=0;
+        if(u16Time==100)
+        {
+            u16Time=150;
+        }
+        u16Time=u16Time-50;
+    }
+    
+    if(WasButtonPressed(BUTTON1))//make the speed of characters,LED and BUZZER1 down
+    {
+        ButtonAcknowledge(BUTTON1);
+        u16Counter=0;
+        if(u16Time==600)
+        {
+            u16Time=550;
+        }
+        u16Time=u16Time+50;
+    }
+    
+    if(WasButtonPressed(BUTTON2))//turn on or turn off the LED and BUZZER
+    {
+        ButtonAcknowledge(BUTTON2); 
+        bON=!bON;
+    }
+    
+    if(bON)
+    {
+        u16TimerCounter++;
+
+	if(u16TimerCounter==u16Time)
+	{
+		u8LedNo++;
+		u16TimerCounter=0;
+		bOK=TRUE;
+	}
+	
+	if(bOK)
+	{	
+		bOK=FALSE;
+                PWMAudioOn(BUZZER1);
+		switch(u8LedNo)
+		{
+			case 8:
+				LedOn(WHITE);
+                                PWMAudioSetFrequency(BUZZER1,1000);
+				break;
+			case 7:
+				LedOn(PURPLE);
+                                PWMAudioSetFrequency(BUZZER1,900);
+				break;
+			case 6:
+				LedOn(BLUE);
+                                PWMAudioSetFrequency(BUZZER1,800);
+				break;
+			case 5:
+				LedOn(CYAN);
+                                PWMAudioSetFrequency(BUZZER1,700);
+				break;
+			case 4:
+				LedOn(GREEN);
+                                PWMAudioSetFrequency(BUZZER1,600);
+				break;
+			case 3:
+				LedOn(YELLOW);
+                                PWMAudioSetFrequency(BUZZER1,500);
+				break;
+			case 2:
+				LedOn(ORANGE);
+                                PWMAudioSetFrequency(BUZZER1,400);
+				break;
+			case 1:
+				LedOn(RED);
+                                PWMAudioSetFrequency(BUZZER1,300);
+				break;
+			case 9:
+				LedOff(WHITE);
+				LedOff(PURPLE);
+				LedOff(BLUE);
+				LedOff(CYAN);
+				LedOff(GREEN);
+				LedOff(YELLOW);
+				LedOff(ORANGE);
+				LedOff(RED);
+				u8LedNo=0;
+                                PWMAudioOff(BUZZER1);
+				break;
+			default:
+				break;		
+		}
+        }
+    }
+    else
+    {
+        LedOff(WHITE);
+        LedOff(PURPLE);
+        LedOff(BLUE);
+        LedOff(CYAN);
+        LedOff(GREEN);
+        LedOff(YELLOW);
+        LedOff(ORANGE);
+        LedOff(RED);
+        PWMAudioOff(BUZZER1);
+        u8LedNo=0;
+    }
+    if(u8Comfirm==1)//scroll up in line1
+    {
+        u16Counter++;       
+        if(u16Counter==u16Time)
+        {      
+            u16Counter=0;
+            LCDCommand(LCD_CLEAR_CMD);
+            
+          if(pu8Pointer1==&au8Message[9])
+          {
+            pu8Pointer1=&au8Message[0];
+            UserApp_CursorPosition1=LINE1_END_ADDR;
+          }
+
+          if(UserApp_CursorPosition1==LINE1_START_ADDR)
+          {        
+            LCDMessage(LINE1_START_ADDR,pu8Pointer1);
+            pu8Pointer1++;
+          }
+          else
+          {       
+            LCDMessage(UserApp_CursorPosition1, au8Message);       
+            UserApp_CursorPosition1--;
+          }            
+        }
+    }
+    if(u8Comfirm==2)//scroll up in line1 and line2
+    {
+        u16Counter++;
+        if(u16Counter==u16Time)
+        {
+            u16Counter=0;
+            u8index++;
+            LCDCommand(LCD_CLEAR_CMD);
+            
+            if(u8index<=19)
+            {
+                LCDMessage(UserApp_CursorPosition2, au8Message);       
+                UserApp_CursorPosition2--;
+            }
+            
+            if(20<=u8index<=29)
+            {
+                LCDMessage(LINE2_START_ADDR,pu8Pointer1);
+                pu8Pointer1++;
+                LCDMessage(UserApp_CursorPosition1,au8Message);
+                UserApp_CursorPosition1--;
+            }
+            if(30<=u8index<=39)
+            {
+                LCDMessage(UserApp_CursorPosition1,au8Message);
+                UserApp_CursorPosition1--;
+            }
+            if(40<=u8index)
+            {
+                LCDMessage(LINE2_START_ADDR,pu8Pointer1);
+                pu8Pointer2++;               
+            }
+            if(pu8Pointer1==&au8Message[9])
+            {
+                pu8Pointer1=&au8Message[0];
+            }    
+            if(pu8Pointer2==&au8Message[9])
+            {
+                pu8Pointer2=&au8Message[0];
+                u8index=0;
+                UserApp_CursorPosition1=LINE1_END_ADDR;
+                UserApp_CursorPosition2=LINE2_END_ADDR;
+            }                      
+        }
+    }
 
 } /* end UserApp1SM_Idle() */
     
