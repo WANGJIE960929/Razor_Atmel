@@ -51,8 +51,7 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
-static u8 UserApp_CursorPosition1 = LINE1_END_ADDR;
-static u8 UserApp_CursorPosition2 = LINE2_END_ADDR;
+
 
 
 /***********************************************************************************************************************
@@ -90,7 +89,15 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
-  
+  LCDCommand(LCD_CLEAR_CMD);
+        LCDMessage(LINE1_START_ADDR+1,"0");
+        LCDMessage(LINE1_START_ADDR+3,"0");
+        LCDMessage(LINE1_START_ADDR+6,"0");
+        LCDMessage(LINE1_START_ADDR+8,"0");
+        LCDMessage(LINE1_START_ADDR+11,"0");
+        LCDMessage(LINE1_START_ADDR+13,"0");
+        LCDMessage(LINE1_START_ADDR+16,"0");
+        LCDMessage(LINE1_START_ADDR+18,"0");
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -139,212 +146,108 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 { 
-    static u16 u16Counter=0;
-    static u16 u16Time=400;
-    static u8 u8index=0;
-    static u8 au8Message[]="WANG JIE!";
-    static u8* pu8Pointer1=&au8Message[0];
-    static u8* pu8Pointer2=&au8Message[0];
-    static u16 u16TimerCounter=0;
-    static u8 u8LedNo=0;//led number
-    static bool bOK=FALSE;
-    static bool bON=FALSE;
-    static u8 u8Comfirm=0;
+    static u8 au8Time[4]={0,0,0,0};
+    static u8 aTimeChar[4];
+    static u8 au8Message[]="Time :";
+    static u16 u16TimeCounter=0;
+    static u8 i;
+ 
     
-    if(WasButtonPressed(BUTTON3))//choose just line1 or line1 and line2 to scroll up
+    LedCommendType aeDemoList[]=
     {
-        if(u8Comfirm==2)
-        {
-            u8Comfirm=0;
-        }
-        ButtonAcknowledge(BUTTON3);
-        u8Comfirm++;
-        u16Counter=0;
-        u8index=0;
-        UserApp_CursorPosition1=LINE1_END_ADDR;
-        UserApp_CursorPosition2=LINE2_END_ADDR;
-        pu8Pointer1=&au8Message[0];
-        pu8Pointer2=&au8Message[0];
-    }
-    if(WasButtonPressed(BUTTON0))//make the speed of characters,LED and BUZZER1 up
+       {RED,1000,TRUE,LED_PWM_100},
+       {RED,3000,FALSE,LED_PWM_0},
+       {ORANGE,2000,TRUE,LED_PWM_100},
+       {ORANGE,4000,FALSE,LED_PWM_0},
+       {YELLOW,3000,TRUE,LED_PWM_100},
+       {YELLOW,5000,FALSE,LED_PWM_0},
+       {GREEN,4000,TRUE,LED_PWM_100},
+       {GREEN,6000,FALSE,LED_PWM_0},
+       {CYAN,5000,TRUE,LED_PWM_100},
+       {CYAN,6000,TRUE,LED_PWM_50},
+       {CYAN,7000,FALSE,LED_PWM_0},
+       {BLUE,6000,TRUE,LED_PWM_100},
+       {BLUE,7000,TRUE,LED_PWM_50},
+       {BLUE,8000,FALSE,LED_PWM_0},
+       {PURPLE,7000,TRUE,LED_PWM_100},
+       {PURPLE,8000,TRUE,LED_PWM_50},
+       {PURPLE,9000,FALSE,LED_PWM_0}
+              
+    };
+   u16TimeCounter++;
+ 
+    switch(u16TimeCounter)       // "1" means leds on,"0" means off
     {
-        ButtonAcknowledge(BUTTON0);
-        u16Counter=0;
-        if(u16Time==100)
-        {
-            u16Time=150;
-        }
-        u16Time=u16Time-50;
+    case 1000:
+        LCDMessage(LINE1_START_ADDR+18,"1");
+        break;
+    case 2000:
+        LCDMessage(LINE1_START_ADDR+18,"1");
+        LCDMessage(LINE1_START_ADDR+16,"1");
+        break;
+    case 3000:
+        LCDMessage(LINE1_START_ADDR+18,"0");
+        LCDMessage(LINE1_START_ADDR+16,"1");
+        LCDMessage(LINE1_START_ADDR+13,"1");
+        break;
+    case 4000:
+        LCDMessage(LINE1_START_ADDR+16,"0");
+        LCDMessage(LINE1_START_ADDR+13,"1");
+        LCDMessage(LINE1_START_ADDR+11,"1");
+        break;
+    case 5000:
+        LCDMessage(LINE1_START_ADDR+13,"0");
+        LCDMessage(LINE1_START_ADDR+11,"1");
+        LCDMessage(LINE1_START_ADDR+8,"1");
+        break;
+    case 6000:
+        LCDMessage(LINE1_START_ADDR+11,"0");
+        LCDMessage(LINE1_START_ADDR+8,"1");
+        LCDMessage(LINE1_START_ADDR+6,"1");
+        break;
+    case 7000:
+        LCDMessage(LINE1_START_ADDR+8,"0");
+        LCDMessage(LINE1_START_ADDR+6,"1");
+        LCDMessage(LINE1_START_ADDR+3,"1");
+        break;
+    case 8000:
+        LCDMessage(LINE1_START_ADDR+6,"0");
+        LCDMessage(LINE1_START_ADDR+3,"1");
+        break;
+    case 9000:
+        LCDMessage(LINE1_START_ADDR+3,"0");
+        break;
+    default:
+        break;
     }
-    
-    if(WasButtonPressed(BUTTON1))//make the speed of characters,LED and BUZZER1 down
-    {
-        ButtonAcknowledge(BUTTON1);
-        u16Counter=0;
-        if(u16Time==600)
-        {
-            u16Time=550;
-        }
-        u16Time=u16Time+50;
-    }
-    
-    if(WasButtonPressed(BUTTON2))//turn on or turn off the LED and BUZZER
-    {
-        ButtonAcknowledge(BUTTON2); 
-        bON=!bON;
-    }
-    
-    if(bON)
-    {
-        u16TimerCounter++;
-
-	if(u16TimerCounter==u16Time)
-	{
-		u8LedNo++;
-		u16TimerCounter=0;
-		bOK=TRUE;
-	}
-	
-	if(bOK)
-	{	
-		bOK=FALSE;
-                PWMAudioOn(BUZZER1);
-		switch(u8LedNo)
-		{
-			case 8:
-				LedOn(WHITE);
-                                PWMAudioSetFrequency(BUZZER1,1000);
-				break;
-			case 7:
-				LedOn(PURPLE);
-                                PWMAudioSetFrequency(BUZZER1,900);
-				break;
-			case 6:
-				LedOn(BLUE);
-                                PWMAudioSetFrequency(BUZZER1,800);
-				break;
-			case 5:
-				LedOn(CYAN);
-                                PWMAudioSetFrequency(BUZZER1,700);
-				break;
-			case 4:
-				LedOn(GREEN);
-                                PWMAudioSetFrequency(BUZZER1,600);
-				break;
-			case 3:
-				LedOn(YELLOW);
-                                PWMAudioSetFrequency(BUZZER1,500);
-				break;
-			case 2:
-				LedOn(ORANGE);
-                                PWMAudioSetFrequency(BUZZER1,400);
-				break;
-			case 1:
-				LedOn(RED);
-                                PWMAudioSetFrequency(BUZZER1,300);
-				break;
-			case 9:
-				LedOff(WHITE);
-				LedOff(PURPLE);
-				LedOff(BLUE);
-				LedOff(CYAN);
-				LedOff(GREEN);
-				LedOff(YELLOW);
-				LedOff(ORANGE);
-				LedOff(RED);
-				u8LedNo=0;
-                                PWMAudioOff(BUZZER1);
-				break;
-			default:
-				break;		
-		}
-        }
-    }
-    else
-    {
-        LedOff(WHITE);
-        LedOff(PURPLE);
-        LedOff(BLUE);
-        LedOff(CYAN);
-        LedOff(GREEN);
-        LedOff(YELLOW);
-        LedOff(ORANGE);
-        LedOff(RED);
-        PWMAudioOff(BUZZER1);
-        u8LedNo=0;
-    }
-    if(u8Comfirm==1)//scroll up in line1
-    {
-        u16Counter++;       
-        if(u16Counter==u16Time)
-        {      
-            u16Counter=0;
-            LCDCommand(LCD_CLEAR_CMD);
-            
-          if(pu8Pointer1==&au8Message[9])
-          {
-            pu8Pointer1=&au8Message[0];
-            UserApp_CursorPosition1=LINE1_END_ADDR;
-          }
-
-          if(UserApp_CursorPosition1==LINE1_START_ADDR)
-          {        
-            LCDMessage(LINE1_START_ADDR,pu8Pointer1);
-            pu8Pointer1++;
-          }
-          else
-          {       
-            LCDMessage(UserApp_CursorPosition1, au8Message);       
-            UserApp_CursorPosition1--;
-          }            
-        }
-    }
-    if(u8Comfirm==2)//scroll up in line1 and line2
-    {
-        u16Counter++;
-        if(u16Counter==u16Time)
-        {
-            u16Counter=0;
-            u8index++;
-            LCDCommand(LCD_CLEAR_CMD);
-            
-            if(u8index<=19)
-            {
-                LCDMessage(UserApp_CursorPosition2, au8Message);       
-                UserApp_CursorPosition2--;
-            }
-            
-            if(20<=u8index<=29)
-            {
-                LCDMessage(LINE2_START_ADDR,pu8Pointer1);
-                pu8Pointer1++;
-                LCDMessage(UserApp_CursorPosition1,au8Message);
-                UserApp_CursorPosition1--;
-            }
-            if(30<=u8index<=39)
-            {
-                LCDMessage(UserApp_CursorPosition1,au8Message);
-                UserApp_CursorPosition1--;
-            }
-            if(40<=u8index)
-            {
-                LCDMessage(LINE2_START_ADDR,pu8Pointer1);
-                pu8Pointer2++;               
-            }
-            if(pu8Pointer1==&au8Message[9])
-            {
-                pu8Pointer1=&au8Message[0];
-            }    
-            if(pu8Pointer2==&au8Message[9])
-            {
-                pu8Pointer2=&au8Message[0];
-                u8index=0;
-                UserApp_CursorPosition1=LINE1_END_ADDR;
-                UserApp_CursorPosition2=LINE2_END_ADDR;
-            }                      
-        }
-    }
-
+   
+   if(u16TimeCounter%500==0)       // change numbers to chars to show on the lcd
+   {
+    LCDClearChars(LINE2_START_ADDR,20);
+    au8Time[0]=u16TimeCounter/1000;
+    au8Time[1]=(u16TimeCounter%1000)/100;
+    au8Time[2]=((u16TimeCounter%1000)%100)/10;
+    au8Time[3]=((u16TimeCounter%1000)%100)%10;
+    aTimeChar[0]=au8Time[0]+'0';
+    aTimeChar[1]=au8Time[1]+'0';
+    aTimeChar[2]=au8Time[2]+'0';
+    aTimeChar[3]=au8Time[3]+'0';
+    LCDMessage(LINE2_START_ADDR+7,aTimeChar);
+    LCDMessage(LINE2_START_ADDR,au8Message);
+   }
+   
+   if(u16TimeCounter==10000)                //zero clearing
+   {
+    u16TimeCounter=0;
+   }
+   for(i=0;i<17;i++)
+   {
+       if(u16TimeCounter==aeDemoList[i].u32Time)//Times to turn on/off leds
+       {
+        LedPWM(aeDemoList[i].eLED,aeDemoList[i].eCurrentRate);       
+       }
+   }
+   
 } /* end UserApp1SM_Idle() */
     
 
