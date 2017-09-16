@@ -10,7 +10,7 @@ LimitSize=0
 ByteLimit=50
 [DebugChecksum]
 <<<<<<< HEAD
-Checksum=-956316723
+Checksum=1288193695
 =======
 Checksum=1464341029
 >>>>>>> c080c694e6eb3b5db5c649699ab09d322b1ac0ae
@@ -47,6 +47,10 @@ UnspecRange=1
 ActionState=1
 [CodeCoverage]
 Enabled=_ 0
+[watch_formats]
+Fmt0={W}1:au8setChannelPowerCS	4	0
+Fmt1={W}1:u8Checksum	4	0
+Fmt2={W}1:u8Length	3	0
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""

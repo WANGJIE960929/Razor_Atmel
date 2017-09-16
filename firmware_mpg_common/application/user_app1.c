@@ -65,6 +65,19 @@ static fnCode_type UserApp1_StateMachine;            /* The state machine functi
 Function Definitions
 **********************************************************************************************************************/
 
+
+static u8 AntCalculateChecksum(u8 *pu8String,u8 u8Length)
+{
+    static u8 u8index=1;
+    static u8 u8Checksum=0;
+   
+    u8Checksum=*pu8String;
+    for(u8index=1; u8index<u8Length-1 ;u8index++)
+    {      
+        u8Checksum=u8Checksum^pu8String[u8index];
+    } 
+    return u8Checksum;
+}
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Public functions                                                                                                   */
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -87,7 +100,16 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+    static u8 au8setChannelPower[]={0xA5,2,0x47,0,4,CS};
+    static u8 au8setChannelID[]={0xA4,5,0x51,1,0xef,0x12,1,50,CS};
+    
+    u8 au8setChannelPowerCS;
+    u8 au8setChannelIDCS;
+    
+    au8setChannelPowerCS = AntCalculateChecksum(au8setChannelPower,sizeof(au8setChannelPower)/sizeof(au8setChannelPower[0]));
+    au8setChannelIDCS = AntCalculateChecksum(au8setChannelID,sizeof(au8setChannelID)/sizeof(au8setChannelID[0]));
+    
+    
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +158,7 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+    
 } /* end UserApp1SM_Idle() */
     
 
