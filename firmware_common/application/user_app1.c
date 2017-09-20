@@ -60,6 +60,7 @@ Variable names shall start with "UserApp1_" and be declared as static.
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
 
+static bool bOK=TRUE;                                /*Set the state amount to prevent multiple calls*/
 
 /**********************************************************************************************************************
 Function Definitions
@@ -68,7 +69,164 @@ Function Definitions
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Public functions                                                                                                   */
 /*--------------------------------------------------------------------------------------------------------------------*/
+static void AllLedOff(void)
+{
+    LedOff(WHITE);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);
+}
 
+/* Use button 1 and 2 to realize function
+
+
+static void UserAppSM_State1(void)              //state   1
+{
+    static u8 au8String[]="STATE  1";
+    static bool bOK=TRUE;
+    void UserAppSM_State2(void);
+    
+    if(bOK==TRUE)
+    {
+        AllLedOff();
+        LCDCommand(LCD_CLEAR_CMD);
+        PWMAudioOff(BUZZER1);
+        DebugPrintf("\n\rEntering state 1\n\r");
+        LCDMessage(LINE1_START_ADDR,au8String);
+        LedOn(WHITE);
+        LedOn(PURPLE);
+        LedOn(BLUE);
+        LedOn(CYAN);
+        LedOn(LCD_RED);                             
+        LedOn(LCD_BLUE);
+        LedPWM(LCD_RED,LED_PWM_90);                 //lcd backlight£ºpurple
+        LedPWM(LCD_GREEN,LED_PWM_10);
+        bOK=FALSE;
+    }
+    if(WasButtonPressed(BUTTON2))               //press button2 to change the state
+    {
+        ButtonAcknowledge(BUTTON2);
+        bOK=TRUE;
+        UserApp1_StateMachine = UserAppSM_State2;
+    }
+}
+
+ static void UserAppSM_State2(void)             //state   2
+{
+    static u32 u32Count=0;
+    static u8 au8String[]="STATE  2";
+    static bool bOK=TRUE;
+    void UserAppSM_State1(void);
+    
+    if(bOK==TRUE)
+    {
+        u32Count=0;
+        AllLedOff();
+        LCDCommand(LCD_CLEAR_CMD);
+        PWMAudioOn(BUZZER1);
+        PWMAudioSetFrequency(BUZZER1,200);
+        DebugPrintf("\n\rEntering state 2\n\r");
+        LCDMessage(LINE1_START_ADDR,au8String);
+        LedBlink(GREEN,LED_1HZ);
+        LedBlink(YELLOW,LED_2HZ);
+        LedBlink(ORANGE,LED_4HZ);
+        LedBlink(RED,LED_8HZ);
+        LedPWM(LCD_RED,LED_PWM_100);                 //lcd backlight£ºORANGE
+        LedPWM(LCD_BLUE,LED_PWM_20);
+        bOK=FALSE;
+    }
+    u32Count++;  
+    
+    if(u32Count==100)                            //buzzer on  100ms
+    {
+        PWMAudioOff(BUZZER1);
+    }
+    
+    if(u32Count==1000)                           
+    {
+        u32Count=0;
+        PWMAudioOn(BUZZER1);
+    }
+        
+    if(WasButtonPressed(BUTTON1))               //press button1 to change the state
+    {
+        ButtonAcknowledge(BUTTON1);
+        bOK=TRUE;
+        UserApp1_StateMachine = UserAppSM_State1;
+    }
+}
+*/
+
+/*Use debug to realize function*/
+
+static void UserAppSM_State1(void)              //state   1
+{
+    static u8 au8String[]="STATE  1";
+    
+    if(bOK==TRUE)
+    {
+        AllLedOff();
+        LCDCommand(LCD_CLEAR_CMD);
+        PWMAudioOff(BUZZER1);
+        DebugPrintf("****************************\n\r");
+        DebugPrintf("Entering state 1           *\n\r");
+        DebugPrintf("****************************\n\r");
+        LCDMessage(LINE1_START_ADDR,au8String);
+        LedOn(WHITE);                               //led
+        LedOn(PURPLE);
+        LedOn(BLUE);
+        LedOn(CYAN);
+        LedOn(LCD_RED);                             
+        LedOn(LCD_BLUE);
+        LedPWM(LCD_RED,LED_PWM_90);                 //lcd backlight£ºpurple
+        LedPWM(LCD_GREEN,LED_PWM_10);
+        bOK=FALSE;
+    }
+    
+}
+
+ static void UserAppSM_State2(void)             //state   2
+{
+    static u32 u32Count=0;
+    static u8 au8String[]="STATE  2";
+    
+    if(bOK==TRUE)
+    {
+        u32Count=0;
+        AllLedOff();
+        LCDCommand(LCD_CLEAR_CMD);
+        PWMAudioOn(BUZZER1);
+        PWMAudioSetFrequency(BUZZER1,200);
+        DebugPrintf("****************************\n\r");
+        DebugPrintf("Entering state 2           *\n\r");
+        DebugPrintf("****************************\n\r");
+        LCDMessage(LINE1_START_ADDR,au8String);
+        LedBlink(GREEN,LED_1HZ);
+        LedBlink(YELLOW,LED_2HZ);
+        LedBlink(ORANGE,LED_4HZ);
+        LedBlink(RED,LED_8HZ);
+        LedPWM(LCD_RED,LED_PWM_100);                 //lcd backlight£ºORANGE
+        LedPWM(LCD_BLUE,LED_PWM_20);
+        bOK=FALSE;
+    }
+    u32Count++;  
+    
+    if(u32Count==100)                             //buzzer on  100ms
+    {
+        PWMAudioOff(BUZZER1);
+    }
+    
+    if(u32Count==1000)                             
+    {
+        u32Count=0;
+        PWMAudioOn(BUZZER1);
+    }
+    
+}
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Protected functions                                                                                                */
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -91,7 +249,8 @@ void UserApp1Initialize(void)
   /* If good initialization, set state to Idle */
   if( 1 )
   {
-    UserApp1_StateMachine = UserApp1SM_Idle;
+    //UserApp1_StateMachine = UserAppSM_State1;            // use button 
+    UserApp1_StateMachine = UserApp1SM_Idle;               // use debug
   }
   else
   {
@@ -118,7 +277,8 @@ Promises:
 */
 void UserApp1RunActiveState(void)
 {
-  UserApp1_StateMachine();
+  UserApp1_StateMachine();              //state and Idle Run at the same time
+  UserApp1SM_Idle();
 
 } /* end UserApp1RunActiveState */
 
@@ -136,7 +296,53 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+    static u8 u8temp=0;
+    static u8 u8datacount;
+    static u8 au8Buffer[]="0";
+    static u8 au8Enter[20]={0};
+    static u8 i=0;
+    
+    u8temp=DebugScanf(au8Buffer);
+    
+    if(u8temp>0)                                //Test whether input
+    {
+        if(au8Buffer[0]=='\r')                  //Test whether press 'ENTER' to end entering
+        {
+            if(u8datacount==0)                  //when just input 'enter' 
+            {
+                DebugScanf(au8Buffer);
+            }
+            else
+            {
+                au8Enter[u8datacount]=au8Buffer[0];
+                
+                if(au8Enter[0]=='1'&&au8Enter[1]=='\r')      //enter 1 to run state1
+                {
+                    bOK=TRUE;
+                    UserApp1_StateMachine = UserAppSM_State1;
+                }
+                else if(au8Enter[0]=='2'&&au8Enter[1]=='\r')   //enter 2 to run state2
+                {
+                    bOK=TRUE;
+                    UserApp1_StateMachine = UserAppSM_State2;
+                }
+                else                                     //when input others,Enter again
+                {
+                    DebugScanf(au8Buffer);
+                }
+            }
+            u8datacount=0;
+            for(i=0;i<20;i++)                           //Initialize Array
+            {
+                au8Enter[i]=0;
+            }
+        }
+        else
+        {
+            au8Enter[u8datacount]=au8Buffer[0];          //Put the input into an array
+            u8datacount++;
+        }
+    }
 } /* end UserApp1SM_Idle() */
     
 
